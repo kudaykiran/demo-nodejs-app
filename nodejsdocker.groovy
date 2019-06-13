@@ -9,7 +9,7 @@ job('NodeJS Docker Job created by DSL') {
         scm('H/5 * * * *')
     }
     wrappers {
-        nodejs('mynodes') // this is the name of the NodeJS installation in 
+        nodejs('mynodjs') // this is the name of the NodeJS installation in 
                          // Manage Jenkins -> Configure Tools -> NodeJS Installations -> Name
     }
     steps {
