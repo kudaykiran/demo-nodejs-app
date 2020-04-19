@@ -11,10 +11,23 @@ node {
        sh 'npm test'
      }
    }
-   stage('docker build/push') {
-     docker.withRegistry('https://hub.docker.com/repository/docker/ukkb96/', 'dockerhub') {
-       def app = docker.build("ukkb96/jenkins-nodejs:${commit_id}", '.').push()
-     }
-   }
+           stage('Create Docker image') {
+            container('docker') {
+                withCredentials([[$class: 'UsernamePasswordMultiBinding',
+                    credentialsId: 'DOCKERHUB',
+                    usernameVariable: 'DOCKER_HUB_USER',
+                    passwordVariable: 'DOCKER_HUB_PASSWORD']]) {
+                    sh """
+                        docker login -u ${DOCKER_HUB_USER} -p ${DOCKER_HUB_PASSWORD}
+                        docker build -t ukkb96/jenkins-nodejs:${BUILD_NUMBER} .
+                        docker push ukkb96/jenkins-nodejs:${BUILD_NUMBER}
+                        """
+                    }
+            }
+        }
+        stage('QA Approval') {
+            input('ALL TESTS PASSED?')
+            sh "echo 'Approved. Ready for deployment...'"
+        }
 }
 
